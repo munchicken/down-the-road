@@ -47,3 +47,22 @@ print(version)
 print(time)
 print(player_speed)
 print(magic)
+
+#collection practice
+#tuples
+screen_size = (640, 480)
+width = screen_size[0]
+height = screen_size[1]
+added_screen_number = screen_size + (1,)
+
+print(screen_size)
+print(width)
+print(height)
+print(added_screen_number)
+
+del added_screen_number
+
+print(len(screen_size))
+print(max(screen_size))
+print(min(screen_size))
+print(100 in screen_size)
