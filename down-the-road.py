@@ -119,3 +119,30 @@ def print_treasure_amounts():
         return('done')
 
 print(print_treasure_amounts())
+
+#classes
+class Weapon:
+    damage = 50
+
+    def __init__(self, name):
+        self.name = name
+    def take_damage(self, amount):
+        self.damage -= amount
+
+sword = Weapon('sword')
+print(sword.name)
+sword.name = 'baseball bat'
+print(sword.name)
+print(sword.damage)
+
+#subclasses
+class Gun(Weapon):
+    ammo = 100
+
+    def __init__(self, name):
+        super().__init__(name)
+
+ak47 = Gun('AK47')
+print(ak47.name)
+print(ak47.damage)
+print(ak47.ammo)
