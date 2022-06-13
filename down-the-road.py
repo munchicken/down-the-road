@@ -10,6 +10,7 @@ pygame.init()
 #constants
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 800
+SCREEN_TITLE = 'Down the Road'
 WHITE_COLOR = (255,255,255)
 BLACK_COLOR = (0,0,0)
 TICK_RATE = 60  #FPS
@@ -18,6 +19,7 @@ TICK_RATE = 60  #FPS
 game_screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
 game_screen.fill(WHITE_COLOR)
 clock = pygame.time.Clock()
+pygame.display.set_caption(SCREEN_TITLE)
 
 #initialize game variables
 is_game_over = False
@@ -29,6 +31,7 @@ while not is_game_over:
         #check for quit event
         if event.type == pygame.QUIT:
             is_game_over = True
+        print(event)
     pygame.display.update()
     clock.tick(TICK_RATE)
 #end game
