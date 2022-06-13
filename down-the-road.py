@@ -84,3 +84,32 @@ player_lives['player3'] = 30
 print(player_lives['player3'])
 del player_lives['player2']
 print(player_lives)
+
+#flow control
+#if statement
+if not game_over:
+    player_lives['player1'] = 100
+    player_lives['player2'] = 100
+    player_lives['player3'] = 100
+if player_speed > 50:
+    player_speed = 50
+elif player_speed < 1:
+    player_speed = 1
+else:
+    player_speed += 1
+
+#loops
+#while
+run_game = True
+turns = 0
+while run_game:
+    turns += 1
+    print(turns)
+    if turns == 3:
+        run_game = False
+
+#for-in
+for amount in treasure_amount:
+    print(amount)
+
+#functions
