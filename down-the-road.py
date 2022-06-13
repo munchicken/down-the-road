@@ -66,3 +66,14 @@ print(len(screen_size))
 print(max(screen_size))
 print(min(screen_size))
 print(100 in screen_size)
+
+#arrays
+treasure_amount = [50, 100, 100, 25, 1, 100]
+print('first treasure ' + str(treasure_amount[0]))
+treasure_amount.append(0)
+print(treasure_amount)
+treasure_amount.remove(1)
+print(treasure_amount)
+
+#dictionaries
+player_lives = {}
