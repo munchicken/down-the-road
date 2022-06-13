@@ -113,3 +113,9 @@ for amount in treasure_amount:
     print(amount)
 
 #functions
+def print_treasure_amounts():
+    for amount in treasure_amount:
+        print(amount)
+        return('done')
+
+print(print_treasure_amounts())
