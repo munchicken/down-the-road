@@ -76,4 +76,11 @@ treasure_amount.remove(1)
 print(treasure_amount)
 
 #dictionaries
-player_lives = {}
+player_lives = {'player1': 100, 'player2': 50, 'player3':25}
+print(player_lives)
+print(player_lives['player1'])
+print(player_lives.keys())
+player_lives['player3'] = 30
+print(player_lives['player3'])
+del player_lives['player2']
+print(player_lives)
