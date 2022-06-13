@@ -146,3 +146,10 @@ ak47 = Gun('AK47')
 print(ak47.name)
 print(ak47.damage)
 print(ak47.ammo)
+
+#constants
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+
+print(SCREEN_WIDTH)
+print(SCREEN_HEIGHT)
