@@ -21,6 +21,10 @@ game_screen.fill(WHITE_COLOR)
 clock = pygame.time.Clock()
 pygame.display.set_caption(SCREEN_TITLE)
 
+#load resources
+player_image = pygame.image.load('player.png')
+player_image = pygame.transform.scale(player_image, (50,50))
+
 #initialize game variables
 is_game_over = False
 
@@ -32,9 +36,12 @@ while not is_game_over:
         if event.type == pygame.QUIT:
             is_game_over = True
         print(event)
+        
     #draw some stuff
-    pygame.draw.rect(game_screen,BLACK_COLOR,[350,350,100,100])
-    pygame.draw.circle(game_screen,BLACK_COLOR,(400,300),50)
+    #pygame.draw.rect(game_screen,BLACK_COLOR,[350,350,100,100])
+    #pygame.draw.circle(game_screen,BLACK_COLOR,(400,300),50)
+    game_screen.blit(player_image, (375,375))
+
     pygame.display.update()
     clock.tick(TICK_RATE)
 #end game
