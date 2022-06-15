@@ -59,6 +59,9 @@ class Game:
                     if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
                         direction = 0  #stop
 
+            #screen clear
+            self.game_screen.fill(WHITE_COLOR)
+
             #update player
             player.move(direction)
             player.draw(self.game_screen)
