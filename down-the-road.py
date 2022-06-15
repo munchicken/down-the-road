@@ -102,6 +102,13 @@ class Game:
                         self.game_screen.blit(text, (300,350))
                         pygame.display.update()
                         clock.tick(1)
+
+            #restart if won / quit if lose
+            if is_game_over:
+                if win:
+                    self.run_game_loop()
+                else:
+                    return
             
             pygame.display.update()  #update display
             clock.tick(self.TICK_RATE)  #update clock
