@@ -47,8 +47,12 @@ class Game:
 
         #create game objects
         player = Player('player.png', 375, 700, 50, 50)
-        enemy = Enemy('monster.png', 20, 600, 50, 50)
-        enemy.speed *= (level / 2)  #enemy speed increased by half the current level
+        enemy0 = Enemy('monster.png', 20, 200, 50, 50)
+        enemy0.speed *= (level / 4)  #enemy speed increased by half the current level
+        enemy1 = Enemy('monster.png', self.width - 20, 400, 50, 50)
+        enemy1.speed *= (level / 4)
+        enemy2 = Enemy('monster.png', 20, 600, 50, 50)
+        enemy2.speed *= (level / 4)
         treasure = GameObject('box.png', 375, 50, 50, 50)
 
         #game loop
@@ -78,8 +82,14 @@ class Game:
             player.draw(self.game_screen)
 
             #update enemy
-            enemy.move(self.width)
-            enemy.draw(self.game_screen)
+            enemy0.move(self.width)
+            enemy0.draw(self.game_screen)
+            if level > 3:
+                enemy1.move(self.width)
+                enemy1.draw(self.game_screen)
+            if level > 5:
+                enemy2.move(self.width)
+                enemy2.draw(self.game_screen)
 
             #update treasure
             treasure.draw(self.game_screen)
@@ -87,7 +97,7 @@ class Game:
             #check for collisions
             #with treasure = win
             #with enemy = lose
-            enemies = [enemy]  #list of enemies
+            enemies = [enemy0, enemy1, enemy2]  #list of enemies
             if player.detect_collision(treasure):
                 is_game_over = True
                 win = True
