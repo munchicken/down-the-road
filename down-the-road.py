@@ -48,12 +48,17 @@ class Game:
         #create game objects
         player = Player('player.png', 375, 700, 50, 50)
         enemy0 = Enemy('monster.png', 20, 200, 50, 50)
-        enemy0.speed *= (level / 4)  #enemy speed increased by half the current level
         enemy1 = Enemy('monster.png', self.width - 20, 400, 50, 50)
-        enemy1.speed *= (level / 4)
         enemy2 = Enemy('monster.png', 20, 600, 50, 50)
-        enemy2.speed *= (level / 4)
         treasure = GameObject('box.png', 375, 50, 50, 50)
+        enemies = [enemy0, enemy1, enemy2]  #list of enemies
+
+        #set enemy speed
+        for enemy in enemies:
+            if level == 4 or level == 6:
+                enemy.speed *= (1 / 4)  #reset enemy speed each time new ones spawn
+            else:
+                enemy.speed *= (level / 4)  #enemy speed increased by a quarter each level
 
         #game loop
         while not is_game_over:
@@ -90,6 +95,7 @@ class Game:
             if level > 5:
                 enemy2.move(self.width)
                 enemy2.draw(self.game_screen)
+            
 
             #update treasure
             treasure.draw(self.game_screen)
@@ -97,7 +103,6 @@ class Game:
             #check for collisions
             #with treasure = win
             #with enemy = lose
-            enemies = [enemy0, enemy1, enemy2]  #list of enemies
             if player.detect_collision(treasure):
                 is_game_over = True
                 win = True
@@ -120,6 +125,10 @@ class Game:
                     self.run_game_loop(level + 1)
                 else:
                     return
+
+            #debug
+            print(level)
+            print(enemy0.speed)
             
             pygame.display.update()  #update display
             clock.tick(self.TICK_RATE)  #update clock
