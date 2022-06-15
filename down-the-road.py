@@ -16,6 +16,8 @@ BLACK_COLOR = (0,0,0)
 
 #initialize display
 clock = pygame.time.Clock()
+pygame.font.init()
+font = pygame.font.SysFont('comicsans', 75)
 
 #classes
 class Game:
@@ -24,7 +26,7 @@ class Game:
     TICK_RATE = 60  #FPS
 
     #initializer
-    def __init__(self, title, width, height):
+    def __init__(self, image_path, title, width, height):
         self.title = title
         self.width = width
         self.height = height
@@ -33,12 +35,15 @@ class Game:
         self.game_screen = pygame.display.set_mode((width,height))
         self.game_screen.fill(WHITE_COLOR)
         pygame.display.set_caption(title)
+        background_image = pygame.image.load(image_path)
+        self.image = pygame.transform.scale(background_image, (width,height))
 
     #game loop method
     def run_game_loop(self):
         #initialize game variables
         is_game_over = False
         direction = 0  #stopped
+        win = False
 
         #create game objects
         player = Player('player.png', 375, 700, 50, 50)
@@ -64,6 +69,9 @@ class Game:
             #screen clear
             self.game_screen.fill(WHITE_COLOR)
 
+            #create background
+            self.game_screen.blit(self.image, (0,0))
+            
             #update player
             player.move(direction, self.height)
             player.draw(self.game_screen)
@@ -81,10 +89,19 @@ class Game:
             enemies = [enemy]  #list of enemies
             if player.detect_collision(treasure):
                 is_game_over = True
+                win = True
+                text = font.render('You win! :)', True, BLACK_COLOR)
+                self.game_screen.blit(text, (300,350))
+                pygame.display.update()
+                clock.tick(1)
             else:
                 for enemy in enemies:
                     if player.detect_collision(enemy):
                         is_game_over = True
+                        text = font.render('You lose! :(', True, BLACK_COLOR)
+                        self.game_screen.blit(text, (300,350))
+                        pygame.display.update()
+                        clock.tick(1)
             
             pygame.display.update()  #update display
             clock.tick(self.TICK_RATE)  #update clock
@@ -147,7 +164,7 @@ class Enemy(GameObject):
         self.x_pos += self.SPEED
 
 #create game
-new_game = Game(SCREEN_TITLE, SCREEN_WIDTH, SCREEN_HEIGHT)
+new_game = Game('level1.png', SCREEN_TITLE, SCREEN_WIDTH, SCREEN_HEIGHT)
 
 new_game.run_game_loop()
 
