@@ -40,8 +40,9 @@ class Game:
         is_game_over = False
         direction = 0  #stopped
 
-        #create player game object
+        #create game objects
         player = Player('player.png', 375, 700, 50, 50)
+        enemy = Enemy('monster.png', 20, 600, 50, 50)
 
         #game loop
         while not is_game_over:
@@ -65,6 +66,10 @@ class Game:
             #update player
             player.move(direction)
             player.draw(self.game_screen)
+
+            #update enemy
+            enemy.move(self.width)
+            enemy.draw(self.game_screen)
             
             pygame.display.update()  #update display
             clock.tick(self.TICK_RATE)  #update clock
@@ -95,6 +100,20 @@ class Player(GameObject):
             self.y_pos -= self.SPEED
         elif direction < 0:
             self.y_pos += self.SPEED
+
+class Enemy(GameObject):
+
+    SPEED = 10
+
+    def __init__(self, image_path, x, y, width, height):
+        super().__init__(image_path, x, y, width, height)
+
+    def move(self, max_width):
+        if self.x_pos <= 20:
+            self.SPEED = abs(self.SPEED)
+        elif self.x_pos >= max_width - 20:
+            self.SPEED = -abs(self.SPEED)
+        self.x_pos += self.SPEED
 
 #create game
 new_game = Game(SCREEN_TITLE, SCREEN_WIDTH, SCREEN_HEIGHT)
