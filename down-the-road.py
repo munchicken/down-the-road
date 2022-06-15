@@ -24,8 +24,8 @@ class Game:
     TICK_RATE = 60  #FPS
 
     #load resources
-    player_image = pygame.image.load('player.png')
-    player_image = pygame.transform.scale(player_image, (50,50))
+    #player_image = pygame.image.load('player.png')
+    #player_image = pygame.transform.scale(player_image, (50,50))
 
     #initializer
     def __init__(self, title, width, height):
@@ -53,13 +53,29 @@ class Game:
                 print(event)
         
             #draw some stuff
-            self.game_screen.blit(self.player_image, (375,375))
+            #self.game_screen.blit(self.player_image, (375,375))
             
             pygame.display.update()  #update display
             clock.tick(self.TICK_RATE)  #update clock
 
+class GameObject:
+    def __init__(self, image_path, x, y, width, height):
+        object_image = pygame.image.load(image_path)
+        self.image = pygame.transform.scale(object_image, (width, height))
+
+        self.x_pos = x
+        self.y_pos = y
+
+    def draw(self, background):
+        background.blit(self.image, (self.x_pos, self.y_pos))
+
 #create game
 new_game = Game(SCREEN_TITLE, SCREEN_WIDTH, SCREEN_HEIGHT)
+
+#create game object
+player = GameObject('player.png', 375, 375, 50, 50)
+player.draw(new_game.game_screen)
+
 new_game.run_game_loop()
 
 #end game
