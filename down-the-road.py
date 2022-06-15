@@ -23,10 +23,6 @@ class Game:
     #constants
     TICK_RATE = 60  #FPS
 
-    #load resources
-    #player_image = pygame.image.load('player.png')
-    #player_image = pygame.transform.scale(player_image, (50,50))
-
     #initializer
     def __init__(self, title, width, height):
         self.title = title
@@ -42,6 +38,10 @@ class Game:
     def run_game_loop(self):
         #initialize game variables
         is_game_over = False
+        direction = 0  #stopped
+
+        #create player game object
+        player = Player('player.png', 375, 700, 50, 50)
 
         #game loop
         while not is_game_over:
@@ -50,10 +50,18 @@ class Game:
                 #check for quit event
                 if event.type == pygame.QUIT:
                     is_game_over = True
-                print(event)
-        
-            #draw some stuff
-            #self.game_screen.blit(self.player_image, (375,375))
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_UP:
+                        direction = 1  #up
+                    elif event.key == pygame.K_DOWN:
+                        direction = -1  #down
+                elif event.type == pygame.KEYUP:
+                    if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
+                        direction = 0  #stop
+
+            #update player
+            player.move(direction)
+            player.draw(self.game_screen)
             
             pygame.display.update()  #update display
             clock.tick(self.TICK_RATE)  #update clock
@@ -66,15 +74,27 @@ class GameObject:
         self.x_pos = x
         self.y_pos = y
 
+        self.width = width
+        self.height = height
+
     def draw(self, background):
         background.blit(self.image, (self.x_pos, self.y_pos))
 
+class Player(GameObject):
+
+    SPEED = 10  #tiles per sec
+
+    def __init__(self, image_path, x, y, width, height):
+        super().__init__(image_path, x, y, width, height)
+
+    def move(self, direction):
+        if direction > 0:
+            self.y_pos -= self.SPEED
+        elif direction < 0:
+            self.y_pos += self.SPEED
+
 #create game
 new_game = Game(SCREEN_TITLE, SCREEN_WIDTH, SCREEN_HEIGHT)
-
-#create game object
-player = GameObject('player.png', 375, 375, 50, 50)
-player.draw(new_game.game_screen)
 
 new_game.run_game_loop()
 
