@@ -64,7 +64,7 @@ class Game:
             self.game_screen.fill(WHITE_COLOR)
 
             #update player
-            player.move(direction)
+            player.move(direction, self.height)
             player.draw(self.game_screen)
 
             #update enemy
@@ -95,11 +95,14 @@ class Player(GameObject):
     def __init__(self, image_path, x, y, width, height):
         super().__init__(image_path, x, y, width, height)
 
-    def move(self, direction):
+    def move(self, direction, max_height):
         if direction > 0:
             self.y_pos -= self.SPEED
         elif direction < 0:
             self.y_pos += self.SPEED
+        #bounds checking
+        if self.y_pos >= max_height - self.height:
+            self.y_pos = max_height - self.height
 
 class Enemy(GameObject):
 
@@ -111,7 +114,7 @@ class Enemy(GameObject):
     def move(self, max_width):
         if self.x_pos <= 20:
             self.SPEED = abs(self.SPEED)
-        elif self.x_pos >= max_width - 20:
+        elif self.x_pos >= max_width - (20 + self.width):
             self.SPEED = -abs(self.SPEED)
         self.x_pos += self.SPEED
 
