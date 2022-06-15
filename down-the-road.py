@@ -43,6 +43,7 @@ class Game:
         #create game objects
         player = Player('player.png', 375, 700, 50, 50)
         enemy = Enemy('monster.png', 20, 600, 50, 50)
+        treasure = GameObject('box.png', 375, 50, 50, 50)
 
         #game loop
         while not is_game_over:
@@ -70,6 +71,20 @@ class Game:
             #update enemy
             enemy.move(self.width)
             enemy.draw(self.game_screen)
+
+            #update treasure
+            treasure.draw(self.game_screen)
+
+            #check for collisions
+            #with treasure = win
+            #with enemy = lose
+            enemies = [enemy]  #list of enemies
+            if player.detect_collision(treasure):
+                is_game_over = True
+            else:
+                for enemy in enemies:
+                    if player.detect_collision(enemy):
+                        is_game_over = True
             
             pygame.display.update()  #update display
             clock.tick(self.TICK_RATE)  #update clock
@@ -103,6 +118,19 @@ class Player(GameObject):
         #bounds checking
         if self.y_pos >= max_height - self.height:
             self.y_pos = max_height - self.height
+    def detect_collision(self, other_object):
+        #check Y
+        if self.y_pos > other_object.y_pos + other_object.height:
+            return False
+        elif self.y_pos + self.height < other_object.y_pos:
+            return False
+        #check x
+        if self.x_pos > other_object.x_pos + other_object.width:
+            return False
+        elif self.x_pos + self.width < other_object.x_pos:
+            return False
+        #colliding
+        return True
 
 class Enemy(GameObject):
 
