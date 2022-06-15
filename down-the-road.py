@@ -125,10 +125,6 @@ class Game:
                     self.run_game_loop(level + 1)
                 else:
                     return
-
-            #debug
-            print(level)
-            print(enemy0.speed)
             
             pygame.display.update()  #update display
             clock.tick(self.TICK_RATE)  #update clock
