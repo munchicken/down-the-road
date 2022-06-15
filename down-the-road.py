@@ -39,7 +39,7 @@ class Game:
         self.image = pygame.transform.scale(background_image, (width,height))
 
     #game loop method
-    def run_game_loop(self):
+    def run_game_loop(self, level):
         #initialize game variables
         is_game_over = False
         direction = 0  #stopped
@@ -48,6 +48,7 @@ class Game:
         #create game objects
         player = Player('player.png', 375, 700, 50, 50)
         enemy = Enemy('monster.png', 20, 600, 50, 50)
+        enemy.speed *= (level / 2)  #enemy speed increased by half the current level
         treasure = GameObject('box.png', 375, 50, 50, 50)
 
         #game loop
@@ -106,7 +107,7 @@ class Game:
             #restart if won / quit if lose
             if is_game_over:
                 if win:
-                    self.run_game_loop()
+                    self.run_game_loop(level + 1)
                 else:
                     return
             
@@ -158,22 +159,22 @@ class Player(GameObject):
 
 class Enemy(GameObject):
 
-    SPEED = 10
+    speed = 10
 
     def __init__(self, image_path, x, y, width, height):
         super().__init__(image_path, x, y, width, height)
 
     def move(self, max_width):
         if self.x_pos <= 20:
-            self.SPEED = abs(self.SPEED)
+            self.speed = abs(self.speed)
         elif self.x_pos >= max_width - (20 + self.width):
-            self.SPEED = -abs(self.SPEED)
-        self.x_pos += self.SPEED
+            self.speed = -abs(self.speed)
+        self.x_pos += self.speed
 
 #create game
 new_game = Game('level1.png', SCREEN_TITLE, SCREEN_WIDTH, SCREEN_HEIGHT)
 
-new_game.run_game_loop()
+new_game.run_game_loop(1)  #start at level 1
 
 #end game
 pygame.quit()
