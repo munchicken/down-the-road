@@ -20,6 +20,7 @@ pygame.font.init()
 font = pygame.font.SysFont('comicsans', 75)
 
 #classes
+#main game
 class Game:
 
     #constants
@@ -67,6 +68,7 @@ class Game:
                 #check for quit event
                 if event.type == pygame.QUIT:
                     is_game_over = True
+                #handle user controls
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_UP:
                         direction = 1  #up
@@ -76,17 +78,17 @@ class Game:
                     if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
                         direction = 0  #stop
 
-            #screen clear
-            self.game_screen.fill(WHITE_COLOR)
+            #screen clear - handled by blitting the background now
+            #self.game_screen.fill(WHITE_COLOR)
 
-            #create background
+            #create background (also clears screen)
             self.game_screen.blit(self.image, (0,0))
             
             #update player
             player.move(direction, self.height)
             player.draw(self.game_screen)
 
-            #update enemy
+            #update enemies
             enemy0.move(self.width)
             enemy0.draw(self.game_screen)
             if level > 3:
@@ -102,7 +104,6 @@ class Game:
 
             #check for collisions
             #with treasure = win
-            #with enemy = lose
             if player.detect_collision(treasure):
                 is_game_over = True
                 win = True
@@ -110,6 +111,7 @@ class Game:
                 self.game_screen.blit(text, (300,350))
                 pygame.display.update()
                 clock.tick(1)
+            #with enemy = lose
             else:
                 for enemy in enemies:
                     if player.detect_collision(enemy):
@@ -122,13 +124,14 @@ class Game:
             #restart if won / quit if lose
             if is_game_over:
                 if win:
-                    self.run_game_loop(level + 1)
+                    self.run_game_loop(level + 1)  #increase level
                 else:
                     return
             
             pygame.display.update()  #update display
             clock.tick(self.TICK_RATE)  #update clock
 
+#objects in game (image, position, & size)
 class GameObject:
     def __init__(self, image_path, x, y, width, height):
         object_image = pygame.image.load(image_path)
@@ -143,28 +146,32 @@ class GameObject:
     def draw(self, background):
         background.blit(self.image, (self.x_pos, self.y_pos))
 
+#player object
 class Player(GameObject):
 
     SPEED = 10  #tiles per sec
 
     def __init__(self, image_path, x, y, width, height):
         super().__init__(image_path, x, y, width, height)
-
+    
+    #move method (direction & height of game)
     def move(self, direction, max_height):
         if direction > 0:
             self.y_pos -= self.SPEED
         elif direction < 0:
             self.y_pos += self.SPEED
-        #bounds checking
+        #bounds checking (bottom only)
         if self.y_pos >= max_height - self.height:
-            self.y_pos = max_height - self.height
+            self.y_pos = max_height - self.height  #keeps character at game height - character height
+    
+    #character collision detection        
     def detect_collision(self, other_object):
-        #check Y
+        #check Y - if completely above or below other object
         if self.y_pos > other_object.y_pos + other_object.height:
             return False
         elif self.y_pos + self.height < other_object.y_pos:
             return False
-        #check x
+        #check x - if completely to the right or left of other object
         if self.x_pos > other_object.x_pos + other_object.width:
             return False
         elif self.x_pos + self.width < other_object.x_pos:
@@ -172,18 +179,23 @@ class Player(GameObject):
         #colliding
         return True
 
+#enemy object
 class Enemy(GameObject):
 
-    speed = 10
+    speed = 10  #tiles per sec
 
     def __init__(self, image_path, x, y, width, height):
         super().__init__(image_path, x, y, width, height)
 
+    #moves enemy back and forth across screen
     def move(self, max_width):
+        #at left edge - change dir to right - 20 for padding
         if self.x_pos <= 20:
             self.speed = abs(self.speed)
+        #at right edge - change dir to left - 20 for padding
         elif self.x_pos >= max_width - (20 + self.width):
             self.speed = -abs(self.speed)
+        #move
         self.x_pos += self.speed
 
 #create game
