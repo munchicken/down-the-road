@@ -3,6 +3,7 @@
 
 #imports
 import pygame
+import random
 
 #initialize game engine
 pygame.init()
@@ -13,6 +14,7 @@ SCREEN_HEIGHT = 800
 SCREEN_TITLE = 'Down the Road'
 WHITE_COLOR = (255,255,255)
 BLACK_COLOR = (0,0,0)
+MAX_ENEMIES = 6
 
 #initialize display
 clock = pygame.time.Clock()
@@ -27,10 +29,11 @@ class Game:
     TICK_RATE = 60  #FPS
 
     #initializer
-    def __init__(self, image_path, title, width, height):
+    def __init__(self, image_path, title, width, height, enemies):
         self.title = title
         self.width = width
         self.height = height
+        self.max_enemies = enemies
         
         #initialize display
         self.game_screen = pygame.display.set_mode((width,height))
@@ -48,16 +51,27 @@ class Game:
 
         #create game objects
         player = Player('player.png', 375, 700, 50, 50)
-        enemy0 = Enemy('monster.png', 20, 200, 50, 50)
-        enemy1 = Enemy('monster.png', self.width - 20, 400, 50, 50)
-        enemy2 = Enemy('monster.png', 20, 600, 50, 50)
         treasure = GameObject('box.png', 375, 50, 50, 50)
-        enemies = [enemy0, enemy1, enemy2]  #list of enemies
+        enemies = []  #empty list of enemies
+        #find random lanes for enemies (out of 6 lanes)
+        lane = random.sample(range(6),6)
+        #create enemies
+        for i in range(self.max_enemies):
+            #figure out x - even lanes on right, odd on left
+            if ((lane[i] +1) % 2) == 0:
+                x = self.width - 20  # right
+            else:
+                x = 20  # left
+            #figure out y - 6 random lanes
+            y = lane[i] * 80 + 200  #80 between each for player clearance, start at 200, end at 600
+            #create & place enemy, & add to enemy list
+            enemies.append (Enemy('monster.png', x, y, 50, 50))
 
         #set enemy speed
         for enemy in enemies:
-            if level == 4 or level == 6:
-                enemy.speed *= (1 / 4)  #reset enemy speed each time new ones spawn
+            #every 4 levels
+            if level % 4 == 0:
+                enemy.speed *= (2 / 4)  #reset enemy speed each time new ones spawn (based on class original speed)
             else:
                 enemy.speed *= (level / 4)  #enemy speed increased by a quarter each level
 
@@ -78,9 +92,6 @@ class Game:
                     if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
                         direction = 0  #stop
 
-            #screen clear - handled by blitting the background now
-            #self.game_screen.fill(WHITE_COLOR)
-
             #create background (also clears screen)
             self.game_screen.blit(self.image, (0,0))
             
@@ -89,15 +100,23 @@ class Game:
             player.draw(self.game_screen)
 
             #update enemies
-            enemy0.move(self.width)
-            enemy0.draw(self.game_screen)
+            enemies[0].move(self.width)
+            enemies[0].draw(self.game_screen)
             if level > 3:
-                enemy1.move(self.width)
-                enemy1.draw(self.game_screen)
-            if level > 5:
-                enemy2.move(self.width)
-                enemy2.draw(self.game_screen)
-            
+                enemies[1].move(self.width)
+                enemies[1].draw(self.game_screen)
+            if level > 7:
+                enemies[2].move(self.width)
+                enemies[2].draw(self.game_screen)
+            if level > 11:
+                enemies[3].move(self.width)
+                enemies[3].draw(self.game_screen)
+            if level > 15:
+                enemies[4].move(self.width)
+                enemies[4].draw(self.game_screen)
+            if level > 19:
+                enemies[5].move(self.width)
+                enemies[5].draw(self.game_screen)
 
             #update treasure
             treasure.draw(self.game_screen)
@@ -182,7 +201,7 @@ class Player(GameObject):
 #enemy object
 class Enemy(GameObject):
 
-    speed = 10  #tiles per sec
+    speed = 2  #tiles per sec
 
     def __init__(self, image_path, x, y, width, height):
         super().__init__(image_path, x, y, width, height)
@@ -199,7 +218,7 @@ class Enemy(GameObject):
         self.x_pos += self.speed
 
 #create game
-new_game = Game('level1.png', SCREEN_TITLE, SCREEN_WIDTH, SCREEN_HEIGHT)
+new_game = Game('level1.png', SCREEN_TITLE, SCREEN_WIDTH, SCREEN_HEIGHT, MAX_ENEMIES)
 
 new_game.run_game_loop(1)  #start at level 1
 
