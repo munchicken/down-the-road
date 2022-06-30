@@ -4,6 +4,7 @@
 #imports
 import pygame
 import random
+import spritesheet
 
 #initialize game engine
 pygame.init()
@@ -12,8 +13,8 @@ pygame.init()
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 800
 SCREEN_TITLE = 'Down the Road'
-WHITE_COLOR = (255,255,255)
-BLACK_COLOR = (0,0,0)
+WHITE = (255,255,255)
+BLACK = (0,0,0)
 MAX_ENEMIES = 6
 
 #initialize display
@@ -37,7 +38,6 @@ class Game:
         
         #initialize display
         self.game_screen = pygame.display.set_mode((width,height))
-        self.game_screen.fill(WHITE_COLOR)
         pygame.display.set_caption(title)
         background_image = pygame.image.load(image_path)
         self.image = pygame.transform.scale(background_image, (width,height))
@@ -50,7 +50,7 @@ class Game:
         win = False
 
         #create game objects
-        player = Player('player.png', 375, 700, 50, 50)
+        player = Player('Fox_walk.png', (self.width/2) - (100/2), self.height - 100, 100, 100)  # sending in spritesheet now
         treasure = GameObject('box.png', 375, 50, 50, 50)
         enemies = []  #empty list of enemies
         #find random lanes for enemies (out of 6 lanes)
@@ -126,7 +126,7 @@ class Game:
             if player.detect_collision(treasure):
                 is_game_over = True
                 win = True
-                text = font.render('You win! :)', True, BLACK_COLOR)
+                text = font.render('You win! :)', True, BLACK)
                 self.game_screen.blit(text, (300,350))
                 pygame.display.update()
                 clock.tick(1)
@@ -135,7 +135,7 @@ class Game:
                 for enemy in enemies:
                     if player.detect_collision(enemy):
                         is_game_over = True
-                        text = font.render('You lose! :(', True, BLACK_COLOR)
+                        text = font.render('You lose! :(', True, BLACK)
                         self.game_screen.blit(text, (300,350))
                         pygame.display.update()
                         clock.tick(1)
@@ -153,7 +153,9 @@ class Game:
 #objects in game (image, position, & size)
 class GameObject:
     def __init__(self, image_path, x, y, width, height):
-        object_image = pygame.image.load(image_path)
+        self.sheet_image = pygame.image.load(image_path)  # load the spritesheet
+        self.sheet = spritesheet.Spritesheet(self.sheet_image, 384,384,4,4)  # instantiate spritesheet object (w/h,rows/cols)
+        object_image = self.sheet.get_frame(0,0,1,BLACK)  # grab desired frame
         self.image = pygame.transform.scale(object_image, (width, height))
 
         self.x_pos = x
