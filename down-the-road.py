@@ -51,7 +51,7 @@ class Game:
 
         #create game objects
         player = Player('Fox_walk.png', (self.width/2) - (100/2), self.height - 100, 100, 100)  # sending in spritesheet now
-        treasure = GameObject('box.png', 375, 50, 50, 50)
+        treasure = GameObject('box.png', (self.width/2) - (100/2), 50, 100, 100)
         enemies = []  #empty list of enemies
         #find random lanes for enemies (out of 6 lanes)
         lane = random.sample(range(6),6)
@@ -153,10 +153,10 @@ class Game:
 #objects in game (image, position, & size)
 class GameObject:
     def __init__(self, image_path, x, y, width, height):
-        self.sheet_image = pygame.image.load(image_path)  # load the spritesheet
+        self.sheet_image = pygame.image.load(image_path).convert_alpha()  # load the spritesheet
         self.sheet = spritesheet.Spritesheet(self.sheet_image, 384,384,4,4)  # instantiate spritesheet object (w/h,rows/cols)
-        object_image = self.sheet.get_frame(0,0,1,BLACK)  # grab desired frame
-        self.image = pygame.transform.scale(object_image, (width, height))
+        self.object_image = self.sheet.get_frame(0,0,1,BLACK)  # grab desired frame
+        self.image = pygame.transform.scale(self.object_image, (width, height)).convert_alpha()
 
         self.x_pos = x
         self.y_pos = y
