@@ -50,8 +50,8 @@ class Game:
         win = False
 
         #create game objects
-        player = Player('Fox_walk.png', (self.width/2) - (100/2), self.height - 100, 100, 100)  # sending in spritesheet now
-        treasure = GameObject('box.png', (self.width/2) - (100/2), 50, 100, 100)
+        player = Player('Fox_walk.png', (self.width/2) - (100/2), self.height - 100, 100, 100,384,384,4,4,1)  # sending in spritesheet now
+        treasure = GameObject('box.png', (self.width/2) - (100/2), 50, 100, 100,32,32,1,1,1)
         enemies = []  #empty list of enemies
         #find random lanes for enemies (out of 6 lanes)
         lane = random.sample(range(6),6)
@@ -65,7 +65,7 @@ class Game:
             #figure out y - 6 random lanes
             y = lane[i] * 80 + 200  #80 between each for player clearance, start at 200, end at 600
             #create & place enemy, & add to enemy list
-            enemies.append (Enemy('monster.png', x, y, 50, 50))
+            enemies.append (Enemy('monster.png', x, y, 50, 50,32,32,1,1,1))
 
         #set enemy speed
         for enemy in enemies:
@@ -152,10 +152,10 @@ class Game:
 
 #objects in game (image, position, & size)
 class GameObject:
-    def __init__(self, image_path, x, y, width, height):
+    def __init__(self, image_path, x, y, width, height, sheet_width, sheet_height, rows, cols, frame):
         self.sheet_image = pygame.image.load(image_path).convert_alpha()  # load the spritesheet
-        self.sheet = spritesheet.Spritesheet(self.sheet_image, 384,384,4,4)  # instantiate spritesheet object (w/h,rows/cols)
-        self.object_image = self.sheet.get_frame(0,0,1,BLACK)  # grab desired frame
+        self.sheet = spritesheet.Spritesheet(self.sheet_image, sheet_width,sheet_height,rows,cols)  # instantiate spritesheet object (w/h,rows/cols)
+        self.object_image = self.sheet.get_frame(0,0,frame,BLACK)  # grab desired frame
         self.image = pygame.transform.scale(self.object_image, (width, height)).convert_alpha()
 
         self.x_pos = x
@@ -172,8 +172,8 @@ class Player(GameObject):
 
     SPEED = 10  #tiles per sec
 
-    def __init__(self, image_path, x, y, width, height):
-        super().__init__(image_path, x, y, width, height)
+    def __init__(self, image_path, x, y, width, height, sheet_width, sheet_height, rows, cols, frame):
+        super().__init__(image_path, x, y, width, height, sheet_width, sheet_height, rows, cols, frame)
     
     #move method (direction & height of game)
     def move(self, direction, max_height):
@@ -205,8 +205,8 @@ class Enemy(GameObject):
 
     speed = 2  #tiles per sec
 
-    def __init__(self, image_path, x, y, width, height):
-        super().__init__(image_path, x, y, width, height)
+    def __init__(self, image_path, x, y, width, height, sheet_width, sheet_height, rows, cols, frame):
+        super().__init__(image_path, x, y, width, height, sheet_width, sheet_height, rows, cols, frame)
 
     #moves enemy back and forth across screen
     def move(self, max_width):
