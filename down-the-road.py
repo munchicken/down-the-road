@@ -50,7 +50,7 @@ class Game:
         win = False
 
         #create game objects
-        player = Player('Fox_walk.png', (self.width/2) - (40/2), self.height - 60, 2,384,384,4,4,3,1)  # sending in spritesheet now
+        player = Player('Fox_walk.png', (self.width/2), self.height, 2,384,384,4,4,3,1)  # sending in spritesheet now
         treasure = GameObject('box.png', (self.width/2) - (40/2), 50, 2,32,32,1,1,0,0)
         enemies = []  #empty list of enemies
         #find random lanes for enemies (out of 6 lanes)
@@ -175,6 +175,8 @@ class Player(GameObject):
 
     def __init__(self, image_path, x, y, scale, sheet_width, sheet_height, rows, cols, frame_row, frame_col):
         super().__init__(image_path, x, y, scale, sheet_width, sheet_height, rows, cols, frame_row, frame_col)
+        self.x_pos = x - (self.width/2)  # put in middle
+        self.y_pos = y - self.height  # up from bottom so complete character shows
     
     #move method (direction & height of game)
     def move(self, direction, max_height):
