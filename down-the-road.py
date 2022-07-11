@@ -39,7 +39,7 @@ class Game:
         #initialize display
         self.game_screen = pygame.display.set_mode((width,height))
         pygame.display.set_caption(title)
-        background_image = pygame.image.load(image_path)
+        background_image = pygame.image.load(image_path).convert_alpha()
         self.image = pygame.transform.scale(background_image, (width,height))
 
     #game loop method
@@ -51,7 +51,7 @@ class Game:
 
         #create game objects
         player = Player('Fox_walk.png', (self.width/2), self.height, 2,384,384,4,4,3,1)  # sending in spritesheet now
-        treasure = GameObject('box.png', (self.width/2) - (40/2), 50, 2,32,32,1,1,0,0)
+        treasure = GameObject('box.png', (self.width/2), 50, 2,32,32,1,1,0,0)
         enemies = []  #empty list of enemies
         #find random lanes for enemies (out of 6 lanes)
         lane = random.sample(range(6),6)
@@ -59,13 +59,13 @@ class Game:
         for i in range(self.max_enemies):
             #figure out x - even lanes on right, odd on left
             if ((lane[i] +1) % 2) == 0:
-                x = self.width - 20  # right
+                x = self.width - 50  # right
             else:
-                x = 20  # left
+                x = 50  # left
             #figure out y - 6 random lanes
             y = lane[i] * 80 + 200  #80 between each for player clearance, start at 200, end at 600
             #create & place enemy, & add to enemy list
-            enemies.append (Enemy('monster.png', x, y, 2,32,32,1,1,0,0))
+            enemies.append (Enemy('monster.png', x, y, 1.5,32,32,1,1,0,0))
 
         #set enemy speed
         for enemy in enemies:
@@ -159,11 +159,12 @@ class GameObject:
         self.rect = self.object_image.get_bounding_rect()  # find image size without extra padding
         self.crop = self.object_image.subsurface(self.rect) # crop image to remove extra padding
 
-        self.x_pos = x
-        self.y_pos = y
 
         self.width = self.crop.get_size()[0]  # set size to cropped size
         self.height = self.crop.get_size()[1]
+
+        self.x_pos =  x - (self.width/2)  # put in middle
+        self.y_pos = y
 
     def draw(self, background):
         background.blit(self.crop, (self.x_pos, self.y_pos))
@@ -175,7 +176,6 @@ class Player(GameObject):
 
     def __init__(self, image_path, x, y, scale, sheet_width, sheet_height, rows, cols, frame_row, frame_col):
         super().__init__(image_path, x, y, scale, sheet_width, sheet_height, rows, cols, frame_row, frame_col)
-        self.x_pos = x - (self.width/2)  # put in middle
         self.y_pos = y - self.height  # up from bottom so complete character shows
     
     #move method (direction & height of game)
@@ -210,14 +210,22 @@ class Enemy(GameObject):
 
     def __init__(self, image_path, x, y, scale, sheet_width, sheet_height, rows, cols, frame_row, frame_col):
         super().__init__(image_path, x, y, scale, sheet_width, sheet_height, rows, cols, frame_row, frame_col)
+        self.scale = scale
+        self.image = self.sheet_image
+        self.image = pygame.transform.scale(self.image,(self.width * self.scale,self.height * self.scale))  #scale image since we are not using spritesheet lib
+        self.width *= scale  # to accomidate not going through spritesheet scaler
+        self.height *= scale
+
+    def draw(self, background):
+        background.blit(self.image, (self.x_pos, self.y_pos)) # using the sheet for now, for semi-transparent shadow
 
     #moves enemy back and forth across screen
     def move(self, max_width):
         #at left edge - change dir to right - 20 for padding
-        if self.x_pos <= 20:
+        if self.x_pos <= 50:
             self.speed = abs(self.speed)
         #at right edge - change dir to left - 20 for padding
-        elif self.x_pos >= max_width - (20 + self.width):
+        elif self.x_pos >= max_width - (50 + self.width):
             self.speed = -abs(self.speed)
         #move
         self.x_pos += self.speed
