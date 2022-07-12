@@ -35,6 +35,7 @@ class Game:
         self.width = width
         self.height = height
         self.max_enemies = enemies
+        self.win = False
         
         #initialize display
         self.game_screen = pygame.display.set_mode((width,height))
@@ -47,11 +48,11 @@ class Game:
         #initialize game variables
         is_game_over = False
         direction = 0  #stopped
-        win = False
+        self.win = False
 
         #create game objects
         player = Player('Fox_walk.png', (self.width/2), self.height, 2,384,384,4,4,3,1)  # sending in spritesheet now
-        treasure = GameObject('box.png', (self.width/2), 50, 2,32,32,1,1,0,0)
+        treasure = Treasure('Box_breaking.png', (self.width/2), 50, 2,480,96,1,5,0,0)
         enemies = []  #empty list of enemies
         #find random lanes for enemies (out of 6 lanes)
         lane = random.sample(range(6),6)
@@ -118,16 +119,17 @@ class Game:
                 enemies[5].move(self.width)
                 enemies[5].draw(self.game_screen)
 
-            #update treasure
-            treasure.draw(self.game_screen)
+            
 
             #check for collisions
             #with treasure = win
             if player.detect_collision(treasure):
                 is_game_over = True
-                win = True
+                self.win = True
                 text = font.render('You win! :)', True, BLACK)
                 self.game_screen.blit(text, (300,350))
+                #update treasure
+                treasure.draw(self.game_screen)
                 pygame.display.update()
                 clock.tick(1)
             #with enemy = lose
@@ -140,9 +142,12 @@ class Game:
                         pygame.display.update()
                         clock.tick(1)
 
+            #update treasure
+            treasure.draw(self.game_screen)
+                        
             #restart if won / quit if lose
             if is_game_over:
-                if win:
+                if self.win:
                     self.run_game_loop(level + 1)  #increase level
                 else:
                     return
@@ -213,7 +218,6 @@ class Player(GameObject):
 
     def draw(self, background):
         if self.dir > 0:
-            #background.blit(self.frames[12], (self.x_pos, self.y_pos))
             background.blit(self.up, (self.x_pos, self.y_pos))
         elif self.dir < 0:
             background.blit(self.down, (self.x_pos, self.y_pos))
@@ -244,6 +248,23 @@ class Enemy(GameObject):
             self.speed = -abs(self.speed)
         #move
         self.x_pos += self.speed
+
+#treasure object
+class Treasure(GameObject):
+
+    def __init__(self, image_path, x, y, scale, sheet_width, sheet_height, rows, cols, frame_row, frame_col):
+        super().__init__(image_path, x, y, scale, sheet_width, sheet_height, rows, cols, frame_row, frame_col)
+        self.frames = self.sheet.get_frames(scale,BLACK)
+        self.rect = self.frames[0].get_bounding_rect()  # find image size without extra padding
+        self.whole = self.frames[0].subsurface(self.rect) # crop image to remove extra padding
+        self.rect = self.frames[4].get_bounding_rect()  # find image size without extra padding
+        self.broken = self.frames[4].subsurface(self.rect) # crop image to remove extra padding
+
+    def draw(self, background):
+        if new_game.win:
+            background.blit(self.broken, (self.x_pos, self.y_pos))
+        else:
+            background.blit(self.whole, (self.x_pos, self.y_pos))
 
 #create game
 new_game = Game('level1.png', SCREEN_TITLE, SCREEN_WIDTH, SCREEN_HEIGHT, MAX_ENEMIES)
