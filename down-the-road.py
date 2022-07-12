@@ -177,13 +177,21 @@ class Player(GameObject):
     def __init__(self, image_path, x, y, scale, sheet_width, sheet_height, rows, cols, frame_row, frame_col):
         super().__init__(image_path, x, y, scale, sheet_width, sheet_height, rows, cols, frame_row, frame_col)
         self.y_pos = y - self.height  # up from bottom so complete character shows
+        self.frames = self.sheet.get_frames(scale,BLACK)
+        self.rect = self.frames[12].get_bounding_rect()  # find image size without extra padding
+        self.up = self.frames[12].subsurface(self.rect) # crop image to remove extra padding
+        self.rect = self.frames[0].get_bounding_rect()  # find image size without extra padding
+        self.down = self.frames[0].subsurface(self.rect) # crop image to remove extra padding
+        self.dir = 1  # start looking up
     
     #move method (direction & height of game)
     def move(self, direction, max_height):
         if direction > 0:
             self.y_pos -= self.SPEED
+            self.dir = 1  # up
         elif direction < 0:
             self.y_pos += self.SPEED
+            self.dir = -1  # down
         #bounds checking (bottom only)
         if self.y_pos >= max_height - self.height:
             self.y_pos = max_height - self.height  #keeps character at game height - character height
@@ -202,6 +210,13 @@ class Player(GameObject):
             return False
         #colliding
         return True
+
+    def draw(self, background):
+        if self.dir > 0:
+            #background.blit(self.frames[12], (self.x_pos, self.y_pos))
+            background.blit(self.up, (self.x_pos, self.y_pos))
+        elif self.dir < 0:
+            background.blit(self.down, (self.x_pos, self.y_pos))
 
 #enemy object
 class Enemy(GameObject):
