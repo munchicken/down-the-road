@@ -51,7 +51,7 @@ class Game:
         self.win = False
 
         #create game objects
-        player = Player(['Fox_walk.png'], (self.width/2), self.height, 2,384,384,4,4)  # sending in spritesheet now
+        player = Player(['Fox_idle.png','Fox_walk.png'], (self.width/2), self.height, 2,384,384,4,4)  # sending in spritesheet now
         treasure = Treasure(['Box_breaking.png'], (self.width/2), 50, 2,480,96,1,5)
         enemies = []  #empty list of enemies
         #find random lanes for enemies (out of 6 lanes)
@@ -166,7 +166,7 @@ class GameObject:
         # create spritesheet for each image in spritesheet list
         sheets = []
         for sheet_image in sheet_images:
-            sheets.append(spritesheet.Spritesheet(sheet_image, sheet_width,sheet_height,rows,cols))  # instantiate spritesheet object (w/h,rows/cols)
+            sheets.append(spritesheet.Spritesheet(sheet_image, sheet_width,sheet_height,rows,cols,True))  # instantiate spritesheet object (w/h,rows/cols with cropping)
         
         # get all the frames from each sheet and put into a list of frames lists
         self.frames = []
@@ -183,14 +183,15 @@ class Player(GameObject):
 
     def __init__(self, image_path, x, y, scale, sheet_width, sheet_height, rows, cols):
         super().__init__(image_path, x, y, scale, sheet_width, sheet_height, rows, cols)
-        rect = self.frames[0][12].get_bounding_rect()  # find image size without extra padding
-        self.up = self.frames[0][12].subsurface(rect) # crop image to remove extra padding
-        rect = self.frames[0][0].get_bounding_rect()
-        self.down = self.frames[0][0].subsurface(rect)
+        # indexes are sheet and then frame
+        self.up = self.frames[0][12]
+        self.down = self.frames[0][0]
 
         self.dir = 1  # start looking up
-        self.width = self.up.get_size()[0]  # set size to cropped size
+        # just use one image for the sizing
+        self.width = self.up.get_size()[0]
         self.height = self.up.get_size()[1]
+        #  player specific placement
         self.x_pos =  x - (self.width/2)  # put in middle
         self.y_pos = y - self.height  # up from bottom so complete character shows
 
@@ -240,18 +241,12 @@ class Enemy(GameObject):
     def __init__(self, image_path, x, y, scale, sheet_width, sheet_height, rows, cols):
         super().__init__(image_path, x, y, scale, sheet_width, sheet_height, rows, cols)
         self.images = []
-        # white one
-        rect = self.frames[0][0].get_bounding_rect()  # find image size without extra padding
-        self.images.append(self.frames[0][0].subsurface(rect)) # crop image to remove extra padding
-        # brown one
-        rect = self.frames[1][0].get_bounding_rect()  # find image size without extra padding
-        self.images.append(self.frames[1][0].subsurface(rect)) # crop image to remove extra padding
-        # red one
-        rect = self.frames[2][0].get_bounding_rect()  # find image size without extra padding
-        self.images.append(self.frames[2][0].subsurface(rect)) # crop image to remove extra padding
+        self.images.append(self.frames[0][0])  # white one
+        self.images.append(self.frames[1][0])  # brown one
+        self.images.append(self.frames[2][0])  # red one
         self.image = self.images[random.randint(0,2)]
 
-        self.width = self.images[0].get_size()[0]  # set size to cropped size
+        self.width = self.images[0].get_size()[0]
         self.height = self.images[0].get_size()[1]
 
     #moves enemy back and forth across screen
@@ -274,12 +269,10 @@ class Treasure(GameObject):
 
     def __init__(self, image_path, x, y, scale, sheet_width, sheet_height, rows, cols):
         super().__init__(image_path, x, y, scale, sheet_width, sheet_height, rows, cols)
-        rect = self.frames[0][0].get_bounding_rect()  # find image size without extra padding
-        self.whole = self.frames[0][0].subsurface(rect) # crop image to remove extra padding
-        rect = self.frames[0][4].get_bounding_rect()
-        self.broken = self.frames[0][4].subsurface(rect)
+        self.whole = self.frames[0][0]
+        self.broken = self.frames[0][4]
 
-        self.width = self.whole.get_size()[0]  # set size to cropped size
+        self.width = self.whole.get_size()[0]
         self.height = self.whole.get_size()[1]
         self.x_pos =  x - (self.width/2)  # put in middle
 
