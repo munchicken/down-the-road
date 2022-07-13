@@ -66,7 +66,7 @@ class Game:
             #figure out y - 6 random lanes
             y = lane[i] * 80 + 200  #80 between each for player clearance, start at 200, end at 600
             #create & place enemy, & add to enemy list
-            enemies.append (Enemy('monster.png', x, y, 1.5,32,32,1,1,0,0))
+            enemies.append (Enemy('monster.png', x, y, 2,32,32,1,1,0,0))
 
         #set enemy speed
         for enemy in enemies:
@@ -229,14 +229,6 @@ class Enemy(GameObject):
 
     def __init__(self, image_path, x, y, scale, sheet_width, sheet_height, rows, cols, frame_row, frame_col):
         super().__init__(image_path, x, y, scale, sheet_width, sheet_height, rows, cols, frame_row, frame_col)
-        self.scale = scale
-        self.image = self.sheet_image
-        self.image = pygame.transform.scale(self.image,(self.width * self.scale,self.height * self.scale))  #scale image since we are not using spritesheet lib
-        self.width *= scale  # to accomidate not going through spritesheet scaler
-        self.height *= scale
-
-    def draw(self, background):
-        background.blit(self.image, (self.x_pos, self.y_pos)) # using the sheet for now, for semi-transparent shadow
 
     #moves enemy back and forth across screen
     def move(self, max_width):

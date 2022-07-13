@@ -18,7 +18,7 @@ class Spritesheet():
 
     #grab individual frame from the spritesheet (frame row/col, scaled, color is transparent)
     def get_frame(self,row,col,scale,color):
-        image = pygame.Surface(((self.width//self.cols),(self.height//self.rows))).convert_alpha()  #create surface the size of a frame (sheet size divided by rows/cols) (using int division)
+        image = pygame.Surface(((self.width//self.cols),(self.height//self.rows)), pygame.SRCALPHA)  #create surface the size of a frame (sheet size divided by rows/cols) (using int division)
         image.blit(self.sheet,(0,0),((col * (self.width//self.cols)),(row * (self.height//self.rows)),(self.width//self.cols), (self.height//self.rows)))  #display the area (starting 0,0 to w,h) at 0,0
         image = pygame.transform.scale(image,((self.width//self.cols) * scale,(self.height//self.rows) * scale))  #scale image
         image.set_colorkey(color)  #set transparency
