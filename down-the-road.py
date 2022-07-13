@@ -176,6 +176,10 @@ class GameObject:
         self.x_pos =  x
         self.y_pos = y
 
+        # animation stuff
+        self.last_update = pygame.time.get_ticks()  # get time
+        self.cooldown = 500  # millisec before next animation update
+
 #player object
 class Player(GameObject):
 
@@ -184,13 +188,23 @@ class Player(GameObject):
     def __init__(self, image_path, x, y, scale, sheet_width, sheet_height, rows, cols):
         super().__init__(image_path, x, y, scale, sheet_width, sheet_height, rows, cols)
         # indexes are sheet and then frame
-        self.up = self.frames[0][12]
-        self.down = self.frames[0][0]
+        #self.up = self.frames[0][12]
+        #self.down = self.frames[0][0]
+
+        #sheet names (indexs in sheet list)
+        self.idle = 0
+        self.walk = 1
+
+        #animations
+        self.down = (0,3)  # frame range for all down animations
+        self.up = (12,15)  # frame range for all up animations
+        self.current_down_frame = self.down[0]  # current displayed frame from down, starting at bottom
+        self.current_up_frame = self.up[0]  # current displayed frame from up, starting at bottom
 
         self.dir = 1  # start looking up
         # just use one image for the sizing
-        self.width = self.up.get_size()[0]
-        self.height = self.up.get_size()[1]
+        self.width = self.frames[self.idle][0].get_size()[0]
+        self.height = self.frames[self.idle][0].get_size()[1]
         #  player specific placement
         self.x_pos =  x - (self.width/2)  # put in middle
         self.y_pos = y - self.height  # up from bottom so complete character shows
@@ -198,7 +212,7 @@ class Player(GameObject):
         #shadow
         self.shadow = pygame.image.load("Shadow.png").convert_alpha()
         self.shadow = pygame.transform.scale2x(self.shadow)  # scales x2, might need to change later
-    
+        
     #move method (direction & height of game)
     def move(self, direction, max_height):
         if direction > 0:
@@ -227,10 +241,31 @@ class Player(GameObject):
         return True
 
     def draw(self, background):
+        current_time = pygame.time.get_ticks()  # check the time for animations
+        # going up
         if self.dir > 0:
-            background.blit(self.up, (self.x_pos, self.y_pos))
+            # update animation frame after cooldown
+            if current_time - self.last_update >= self.cooldown:
+                self.current_up_frame += 1  # increment to next frame
+                self.last_update = current_time  # reset cooldown
+                # reset range if past end
+                if self.current_up_frame > self.up[1]:
+                    self.current_up_frame = self.up[0]  # reset back to range start
+
+            background.blit(self.frames[self.idle][self.current_up_frame], (self.x_pos, self.y_pos))
+        # going down
         elif self.dir < 0:
-            background.blit(self.down, (self.x_pos, self.y_pos))
+            # update animation frame after cooldown
+            if current_time - self.last_update >= self.cooldown:
+                self.current_down_frame += 1  # increment to next frame
+                self.last_update = current_time  # reset cooldown
+                # reset range if past end
+                if self.current_down_frame > self.down[1]:
+                    self.current_down_frame = self.down[0]  # reset back to range start
+
+            background.blit(self.frames[self.idle][self.current_down_frame], (self.x_pos, self.y_pos))
+        
+        # display shadow below fox
         background.blit(self.shadow, (self.x_pos, self.y_pos + self.height - 15))
 
 #enemy object
