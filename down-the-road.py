@@ -193,6 +193,10 @@ class Player(GameObject):
         self.height = self.up.get_size()[1]
         self.x_pos =  x - (self.width/2)  # put in middle
         self.y_pos = y - self.height  # up from bottom so complete character shows
+
+        #shadow
+        self.shadow = pygame.image.load("Shadow.png").convert_alpha()
+        self.shadow = pygame.transform.scale2x(self.shadow)  # scales x2, might need to change later
     
     #move method (direction & height of game)
     def move(self, direction, max_height):
@@ -226,6 +230,7 @@ class Player(GameObject):
             background.blit(self.up, (self.x_pos, self.y_pos))
         elif self.dir < 0:
             background.blit(self.down, (self.x_pos, self.y_pos))
+        background.blit(self.shadow, (self.x_pos, self.y_pos + self.height - 15))
 
 #enemy object
 class Enemy(GameObject):
