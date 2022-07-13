@@ -51,8 +51,8 @@ class Game:
         self.win = False
 
         #create game objects
-        player = Player('Fox_walk.png', (self.width/2), self.height, 2,384,384,4,4,3,1)  # sending in spritesheet now
-        treasure = Treasure('Box_breaking.png', (self.width/2), 50, 2,480,96,1,5,0,0)
+        player = Player(['Fox_walk.png'], (self.width/2), self.height, 2,384,384,4,4)  # sending in spritesheet now
+        treasure = Treasure(['Box_breaking.png'], (self.width/2), 50, 2,480,96,1,5)
         enemies = []  #empty list of enemies
         #find random lanes for enemies (out of 6 lanes)
         lane = random.sample(range(6),6)
@@ -66,7 +66,7 @@ class Game:
             #figure out y - 6 random lanes
             y = lane[i] * 80 + 200  #80 between each for player clearance, start at 200, end at 600
             #create & place enemy, & add to enemy list
-            enemies.append (Enemy('monster.png', x, y, 2,32,32,1,1,0,0))
+            enemies.append (Enemy(['Skeleton 01_idle.png','Skeleton 02_idle.png','Skeleton 03_idle.png'], x, y, 2,32,32,1,1))
 
         #set enemy speed
         for enemy in enemies:
@@ -157,37 +157,42 @@ class Game:
 
 #objects in game (image, position, & size)
 class GameObject:
-    def __init__(self, image_path, x, y, scale, sheet_width, sheet_height, rows, cols, frame_row, frame_col):
-        self.sheet_image = pygame.image.load(image_path).convert_alpha()  # load the spritesheet
-        self.sheet = spritesheet.Spritesheet(self.sheet_image, sheet_width,sheet_height,rows,cols)  # instantiate spritesheet object (w/h,rows/cols)
-        self.object_image = self.sheet.get_frame(frame_row,frame_col,scale,BLACK)  # grab desired frame
-        self.rect = self.object_image.get_bounding_rect()  # find image size without extra padding
-        self.crop = self.object_image.subsurface(self.rect) # crop image to remove extra padding
+    def __init__(self, image_paths, x, y, scale, sheet_width, sheet_height, rows, cols):
+        # load each image into image list
+        sheet_images = []
+        for image_path in image_paths:
+            sheet_images.append(pygame.image.load(image_path).convert_alpha())  # load the spritesheets
 
-
-        self.width = self.crop.get_size()[0]  # set size to cropped size
-        self.height = self.crop.get_size()[1]
-
-        self.x_pos =  x - (self.width/2)  # put in middle
+        # create spritesheet for each image in spritesheet list
+        sheets = []
+        for sheet_image in sheet_images:
+            sheets.append(spritesheet.Spritesheet(sheet_image, sheet_width,sheet_height,rows,cols))  # instantiate spritesheet object (w/h,rows/cols)
+        
+        # get all the frames from each sheet and put into a list of frames lists
+        self.frames = []
+        for sheet in sheets:
+            self.frames.append(sheet.get_frames(scale,BLACK))
+        
+        self.x_pos =  x
         self.y_pos = y
-
-    def draw(self, background):
-        background.blit(self.crop, (self.x_pos, self.y_pos))
 
 #player object
 class Player(GameObject):
 
     SPEED = 10  #tiles per sec
 
-    def __init__(self, image_path, x, y, scale, sheet_width, sheet_height, rows, cols, frame_row, frame_col):
-        super().__init__(image_path, x, y, scale, sheet_width, sheet_height, rows, cols, frame_row, frame_col)
-        self.y_pos = y - self.height  # up from bottom so complete character shows
-        self.frames = self.sheet.get_frames(scale,BLACK)
-        self.rect = self.frames[12].get_bounding_rect()  # find image size without extra padding
-        self.up = self.frames[12].subsurface(self.rect) # crop image to remove extra padding
-        self.rect = self.frames[0].get_bounding_rect()  # find image size without extra padding
-        self.down = self.frames[0].subsurface(self.rect) # crop image to remove extra padding
+    def __init__(self, image_path, x, y, scale, sheet_width, sheet_height, rows, cols):
+        super().__init__(image_path, x, y, scale, sheet_width, sheet_height, rows, cols)
+        rect = self.frames[0][12].get_bounding_rect()  # find image size without extra padding
+        self.up = self.frames[0][12].subsurface(rect) # crop image to remove extra padding
+        rect = self.frames[0][0].get_bounding_rect()
+        self.down = self.frames[0][0].subsurface(rect)
+
         self.dir = 1  # start looking up
+        self.width = self.up.get_size()[0]  # set size to cropped size
+        self.height = self.up.get_size()[1]
+        self.x_pos =  x - (self.width/2)  # put in middle
+        self.y_pos = y - self.height  # up from bottom so complete character shows
     
     #move method (direction & height of game)
     def move(self, direction, max_height):
@@ -227,8 +232,22 @@ class Enemy(GameObject):
 
     speed = 2  #tiles per sec
 
-    def __init__(self, image_path, x, y, scale, sheet_width, sheet_height, rows, cols, frame_row, frame_col):
-        super().__init__(image_path, x, y, scale, sheet_width, sheet_height, rows, cols, frame_row, frame_col)
+    def __init__(self, image_path, x, y, scale, sheet_width, sheet_height, rows, cols):
+        super().__init__(image_path, x, y, scale, sheet_width, sheet_height, rows, cols)
+        self.images = []
+        # white one
+        rect = self.frames[0][0].get_bounding_rect()  # find image size without extra padding
+        self.images.append(self.frames[0][0].subsurface(rect)) # crop image to remove extra padding
+        # brown one
+        rect = self.frames[1][0].get_bounding_rect()  # find image size without extra padding
+        self.images.append(self.frames[1][0].subsurface(rect)) # crop image to remove extra padding
+        # red one
+        rect = self.frames[2][0].get_bounding_rect()  # find image size without extra padding
+        self.images.append(self.frames[2][0].subsurface(rect)) # crop image to remove extra padding
+        self.image = self.images[random.randint(0,2)]
+
+        self.width = self.images[0].get_size()[0]  # set size to cropped size
+        self.height = self.images[0].get_size()[1]
 
     #moves enemy back and forth across screen
     def move(self, max_width):
@@ -241,16 +260,23 @@ class Enemy(GameObject):
         #move
         self.x_pos += self.speed
 
+    def draw(self, background):
+        background.blit(self.image
+                        , (self.x_pos, self.y_pos))
+
 #treasure object
 class Treasure(GameObject):
 
-    def __init__(self, image_path, x, y, scale, sheet_width, sheet_height, rows, cols, frame_row, frame_col):
-        super().__init__(image_path, x, y, scale, sheet_width, sheet_height, rows, cols, frame_row, frame_col)
-        self.frames = self.sheet.get_frames(scale,BLACK)
-        self.rect = self.frames[0].get_bounding_rect()  # find image size without extra padding
-        self.whole = self.frames[0].subsurface(self.rect) # crop image to remove extra padding
-        self.rect = self.frames[4].get_bounding_rect()  # find image size without extra padding
-        self.broken = self.frames[4].subsurface(self.rect) # crop image to remove extra padding
+    def __init__(self, image_path, x, y, scale, sheet_width, sheet_height, rows, cols):
+        super().__init__(image_path, x, y, scale, sheet_width, sheet_height, rows, cols)
+        rect = self.frames[0][0].get_bounding_rect()  # find image size without extra padding
+        self.whole = self.frames[0][0].subsurface(rect) # crop image to remove extra padding
+        rect = self.frames[0][4].get_bounding_rect()
+        self.broken = self.frames[0][4].subsurface(rect)
+
+        self.width = self.whole.get_size()[0]  # set size to cropped size
+        self.height = self.whole.get_size()[1]
+        self.x_pos =  x - (self.width/2)  # put in middle
 
     def draw(self, background):
         if new_game.win:
