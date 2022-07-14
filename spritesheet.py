@@ -16,6 +16,8 @@ class Spritesheet():
         self.rows = rows  #max rows of images in spritesheet
         self.cols = cols  #mas cols of images in spritesheet
         self.crop = crop  #whether to crop or not
+        self.multiple = False  #used to flag multiple frame operation, to re-use same rect to keep image size consistant
+        self.first = False  #used to mark first frame operation with multiple, in order to grab the rect to use for the rest
 
     #grab individual frame from the spritesheet (frame row/col, scaled, color is transparent)
     def get_frame(self,row,col,scale,color):
@@ -25,15 +27,25 @@ class Spritesheet():
         image.set_colorkey(color)  #set transparency
         # crop if necessary
         if self.crop:
-            rect = image.get_bounding_rect()  # find image size without extra padding
-            image = image.subsurface(rect)  # crop image to remove extra padding
+            if self.first and self.multiple:
+                self.rect = image.get_bounding_rect()
+                self.first = False
+                image = image.subsurface(self.rect)
+            elif self.multiple:
+                image = image.subsurface(self.rect)
+            else:
+                rect = image.get_bounding_rect()  # find image size without extra padding
+                image = image.subsurface(rect)  # crop image to remove extra padding
         return image
 
     #grab all the frames from the spreadsheet (scaled, color is transparent)
     def get_frames(self,scale,color):
         frames = []  #empty list for frame images
+        self.multiple = True
         for row in range(self.rows):
             for col in range(self.cols):
+                if row == 0 and col == 0:
+                    self.first = True
                 frames.append(self.get_frame(row,col,scale,color))  #grab the frame from spritesheet
         return frames
 
