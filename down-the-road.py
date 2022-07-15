@@ -178,18 +178,15 @@ class GameObject:
 
         # animation stuff
         self.last_update = pygame.time.get_ticks()  # get time
-        self.cooldown = 500  # millisec before next animation update
+        self.cooldown = 200  # millisec before next animation update
 
 #player object
 class Player(GameObject):
 
     SPEED = 10  #tiles per sec
 
-    def __init__(self, image_path, x, y, scale, sheet_width, sheet_height, rows, cols):
-        super().__init__(image_path, x, y, scale, sheet_width, sheet_height, rows, cols)
-        # indexes are sheet and then frame
-        #self.up = self.frames[0][12]
-        #self.down = self.frames[0][0]
+    def __init__(self, image_paths, x, y, scale, sheet_width, sheet_height, rows, cols):
+        super().__init__(image_paths, x, y, scale, sheet_width, sheet_height, rows, cols)
 
         #sheet names (indexs in sheet list)
         self.idle = 0
@@ -273,8 +270,8 @@ class Enemy(GameObject):
 
     speed = 2  #tiles per sec
 
-    def __init__(self, image_path, x, y, scale, sheet_width, sheet_height, rows, cols):
-        super().__init__(image_path, x, y, scale, sheet_width, sheet_height, rows, cols)
+    def __init__(self, image_paths, x, y, scale, sheet_width, sheet_height, rows, cols):
+        super().__init__(image_paths, x, y, scale, sheet_width, sheet_height, rows, cols)
         self.images = []
         self.images.append(self.frames[0][0])  # white one
         self.images.append(self.frames[1][0])  # brown one
@@ -302,8 +299,24 @@ class Enemy(GameObject):
 #treasure object
 class Treasure(GameObject):
 
-    def __init__(self, image_path, x, y, scale, sheet_width, sheet_height, rows, cols):
-        super().__init__(image_path, x, y, scale, sheet_width, sheet_height, rows, cols)
+    def __init__(self, image_paths, x, y, scale, sheet_width, sheet_height, rows, cols):
+        super().__init__(image_paths, x, y, scale, sheet_width, sheet_height, rows, cols)
+
+        # load each image into image list
+        sheet_images = []
+        for image_path in image_paths:
+            sheet_images.append(pygame.image.load(image_path).convert_alpha())  # load the spritesheets
+        
+        # create spritesheet for each image in spritesheet list
+        sheets = []
+        for sheet_image in sheet_images:
+            sheets.append(spritesheet.Spritesheet(sheet_image, sheet_width,sheet_height,rows,cols,False))  # instantiate spritesheet object (w/h,rows/cols with cropping)
+
+        # get all the frames from each sheet and put into a list of frames lists
+        self.frames = []
+        for sheet in sheets:
+            self.frames.append(sheet.get_frames(scale,BLACK))
+
         self.whole = self.frames[0][0]
         self.broken = self.frames[0][4]
 
