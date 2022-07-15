@@ -263,7 +263,7 @@ class Player(GameObject):
             background.blit(self.frames[self.idle][self.current_down_frame], (self.x_pos, self.y_pos))
         
         # display shadow below fox
-        background.blit(self.shadow, (self.x_pos, self.y_pos + self.height - 15))
+        background.blit(self.shadow, (self.x_pos + 4, self.y_pos + self.height - 15))
 
 #enemy object
 class Enemy(GameObject):
@@ -320,15 +320,26 @@ class Treasure(GameObject):
         self.whole = self.frames[0][0]
         self.broken = self.frames[0][4]
 
+        # crop image
+        rect = self.whole.get_bounding_rect()
+        self.whole = self.whole.subsurface(rect)
+        rect = self.broken.get_bounding_rect()
+        self.broken = self.broken.subsurface(rect)
+
+        # set size to the whole one for collisions and placement
         self.width = self.whole.get_size()[0]
         self.height = self.whole.get_size()[1]
-        self.x_pos =  x - (self.width/2)  # put in middle
+
+        # for placement of broken
+        self.broken_width = self.broken.get_size()[0]
+
+        self.x_pos =  x
 
     def draw(self, background):
         if new_game.win:
-            background.blit(self.broken, (self.x_pos, self.y_pos))
+            background.blit(self.broken, (self.x_pos - (self.broken_width/2), self.y_pos))
         else:
-            background.blit(self.whole, (self.x_pos, self.y_pos))
+            background.blit(self.whole, (self.x_pos - (self.width/2), self.y_pos))
 
 #create game
 new_game = Game('level1.png', SCREEN_TITLE, SCREEN_WIDTH, SCREEN_HEIGHT, MAX_ENEMIES)
