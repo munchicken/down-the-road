@@ -183,11 +183,14 @@ class GameObject:
 #player object
 class Player(GameObject):
 
-    SPEED = 10  #tiles per sec
+    SPEED = 5  #tiles per sec
 
     def __init__(self, image_paths, x, y, scale, sheet_width, sheet_height, rows, cols):
         super().__init__(image_paths, x, y, scale, sheet_width, sheet_height, rows, cols)
 
+        #track movement
+        self.moving = False  # start not moving
+        
         #sheet names (indexs in sheet list)
         self.idle = 0
         self.walk = 1
@@ -215,9 +218,13 @@ class Player(GameObject):
         if direction > 0:
             self.y_pos -= self.SPEED
             self.dir = 1  # up
+            self.moving = True
         elif direction < 0:
             self.y_pos += self.SPEED
             self.dir = -1  # down
+            self.moving = True
+        else:
+            self.moving = False # no longer moving
         #bounds checking (bottom only)
         if self.y_pos >= max_height - self.height:
             self.y_pos = max_height - self.height  #keeps character at game height - character height
@@ -249,7 +256,10 @@ class Player(GameObject):
                 if self.current_up_frame > self.up[1]:
                     self.current_up_frame = self.up[0]  # reset back to range start
 
-            background.blit(self.frames[self.idle][self.current_up_frame], (self.x_pos, self.y_pos))
+            if self.moving:
+                background.blit(self.frames[self.walk][self.current_up_frame], (self.x_pos, self.y_pos))
+            else:
+                background.blit(self.frames[self.idle][self.current_up_frame], (self.x_pos, self.y_pos))
         # going down
         elif self.dir < 0:
             # update animation frame after cooldown
@@ -260,7 +270,10 @@ class Player(GameObject):
                 if self.current_down_frame > self.down[1]:
                     self.current_down_frame = self.down[0]  # reset back to range start
 
-            background.blit(self.frames[self.idle][self.current_down_frame], (self.x_pos, self.y_pos))
+            if self.moving:
+                background.blit(self.frames[self.walk][self.current_down_frame], (self.x_pos, self.y_pos))
+            else:
+                background.blit(self.frames[self.idle][self.current_down_frame], (self.x_pos, self.y_pos))
         
         # display shadow below fox
         background.blit(self.shadow, (self.x_pos + 4, self.y_pos + self.height - 15))
