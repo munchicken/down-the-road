@@ -2,6 +2,7 @@
 # by Sarah Pierce
 
 #imports
+from posixpath import supports_unicode_filenames
 import pygame
 import random
 import spritesheet
@@ -46,7 +47,7 @@ class Game:
     #game loop method
     def run_game_loop(self, level):
         #initialize game variables
-        is_game_over = False
+        self.is_game_over = False
         direction = 0  #stopped
         self.win = False
 
@@ -77,12 +78,12 @@ class Game:
                 enemy.speed *= (level / 4)  #enemy speed increased by a quarter each level
 
         #game loop
-        while not is_game_over:
+        while not self.is_game_over:
             #event loop
             for event in pygame.event.get():
                 #check for quit event
                 if event.type == pygame.QUIT:
-                    is_game_over = True
+                    self.is_game_over = True
                 #handle user controls
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_UP:
@@ -124,19 +125,22 @@ class Game:
             #check for collisions
             #with treasure = win
             if player.detect_collision(treasure):
-                is_game_over = True
+                
+                if treasure.current_frame == treasure.range[1]:
+                    self.is_game_over = True
+                
                 self.win = True
                 text = font.render('You win! :)', True, BLACK)
                 self.game_screen.blit(text, (300,350))
                 #update treasure
                 treasure.draw(self.game_screen)
                 pygame.display.update()
-                clock.tick(1)
+                clock.tick(15)  # slow to 15 FPS for end screen
             #with enemy = lose
             else:
                 for enemy in enemies:
                     if player.detect_collision(enemy):
-                        is_game_over = True
+                        self.is_game_over = True
                         text = font.render('You lose! :(', True, BLACK)
                         self.game_screen.blit(text, (300,350))
                         pygame.display.update()
@@ -146,7 +150,7 @@ class Game:
             treasure.draw(self.game_screen)
                         
             #restart if won / quit if lose
-            if is_game_over:
+            if self.is_game_over:
                 if self.win:
                     self.run_game_loop(level + 1)  #increase level
                 else:
@@ -333,7 +337,7 @@ class Treasure(GameObject):
         # create spritesheet for each image in spritesheet list
         sheets = []
         for sheet_image in sheet_images:
-            sheets.append(spritesheet.Spritesheet(sheet_image, sheet_width,sheet_height,rows,cols,False))  # instantiate spritesheet object (w/h,rows/cols with cropping)
+            sheets.append(spritesheet.Spritesheet(sheet_image,sheet_width,sheet_height,rows,cols,False))  # instantiate spritesheet object (w/h,rows/cols with cropping)
 
         # get all the frames from each sheet and put into a list of frames lists
         self.frames = []
@@ -343,11 +347,18 @@ class Treasure(GameObject):
         self.whole = self.frames[0][0]
         self.broken = self.frames[0][4]
 
+        #animations
+        self.range = (0,4)  # frame range for box breaking animation
+        self.current_frame = self.range[0]  # current displayed frame, starting at bottom
+
         # crop image
         rect = self.whole.get_bounding_rect()
         self.whole = self.whole.subsurface(rect)
         rect = self.broken.get_bounding_rect()
         self.broken = self.broken.subsurface(rect)
+        
+        for i in range(1,5):
+            self.frames[0][i] = self.frames[0][i].subsurface(rect)
 
         # set size to the whole one for collisions and placement
         self.width = self.whole.get_size()[0]
@@ -359,8 +370,20 @@ class Treasure(GameObject):
         self.x_pos =  x
 
     def draw(self, background):
+
+        current_time = pygame.time.get_ticks()  # check the time for animations
+
         if new_game.win:
-            background.blit(self.broken, (self.x_pos - (self.broken_width/2), self.y_pos))
+
+            # update animation frame after cooldown
+            if current_time - self.last_update >= self.cooldown:
+                self.current_frame += 1  # increment to next frame
+                self.last_update = current_time  # reset cooldown
+                # reset range if past end
+                if self.current_frame > self.range[1]:
+                    self.current_frame = self.range[1]
+
+            background.blit(self.frames[0][self.current_frame], (self.x_pos - (self.broken_width/2), self.y_pos))
         else:
             background.blit(self.whole, (self.x_pos - (self.width/2), self.y_pos))
 
