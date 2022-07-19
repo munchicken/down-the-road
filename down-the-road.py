@@ -66,7 +66,7 @@ class Game:
             #figure out y - 6 random lanes
             y = lane[i] * 80 + 200  #80 between each for player clearance, start at 200, end at 600
             #create & place enemy, & add to enemy list
-            enemies.append (Enemy(['Skeleton 01_idle.png','Skeleton 02_idle.png','Skeleton 03_idle.png'], x, y, 2,32,32,1,1))
+            enemies.append (Enemy(['Skeleton 01_walk.png','Skeleton 02_walk.png','Skeleton 03_walk.png'], x, y, 2,128,128,4,4))
 
         #set enemy speed
         for enemy in enemies:
@@ -285,14 +285,15 @@ class Enemy(GameObject):
 
     def __init__(self, image_paths, x, y, scale, sheet_width, sheet_height, rows, cols):
         super().__init__(image_paths, x, y, scale, sheet_width, sheet_height, rows, cols)
-        self.images = []
-        self.images.append(self.frames[0][0])  # white one
-        self.images.append(self.frames[1][0])  # brown one
-        self.images.append(self.frames[2][0])  # red one
-        self.image = self.images[random.randint(0,2)]
 
-        self.width = self.images[0].get_size()[0]
-        self.height = self.images[0].get_size()[1]
+        self.type = random.randint(0,2)  # white, brown, red
+        
+        #animations
+        self.walk = (0,3)  # frame range for sideways walking animations
+        self.current_frame = self.walk[0]  # current displayed frame, starting at bottom
+
+        self.width = self.frames[0][0].get_size()[0]
+        self.height = self.frames[0][0].get_size()[1]
 
     #moves enemy back and forth across screen
     def move(self, max_width):
@@ -306,8 +307,17 @@ class Enemy(GameObject):
         self.x_pos += self.speed
 
     def draw(self, background):
-        background.blit(self.image
-                        , (self.x_pos, self.y_pos))
+        current_time = pygame.time.get_ticks()  # check the time for animations
+
+        # update animation frame after cooldown
+        if current_time - self.last_update >= self.cooldown:
+            self.current_frame += 1  # increment to next frame
+            self.last_update = current_time  # reset cooldown
+            # reset range if past end
+            if self.current_frame > self.walk[1]:
+                self.current_frame = self.walk[0]  # reset back to range start
+
+        background.blit(self.frames[self.type][self.current_frame], (self.x_pos, self.y_pos))
 
 #treasure object
 class Treasure(GameObject):
